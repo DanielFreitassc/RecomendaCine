@@ -60,3 +60,7 @@ O **RecomendaCine** é uma plataforma que sugere um filme por dia, baseado nos g
 ---
 
 **RecomendaCine** - O seu guia pessoal para filmes incríveis, um por dia!
+---
+### **Modelagem do banco de dados**
+
+![image](https://github.com/user-attachments/assets/df8ad70f-c0d6-4d3a-a871-3457380f8cb6)
