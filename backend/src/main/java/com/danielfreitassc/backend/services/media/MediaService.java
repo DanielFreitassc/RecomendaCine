@@ -6,7 +6,9 @@ import java.util.Random;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
@@ -34,21 +36,18 @@ public class MediaService {
     }
 
     public MediaResponseDto recommendation() {
-        List<String> genres = Arrays.asList("Science Fiction");
+        List<String> genres = Arrays.asList("Suspense");
         MediaTypeEnum mediaType = MediaTypeEnum.MOVIE;
         List<MediaEntity> allMedia = mediaRepository.findByGenreInAndMediaType(genres, mediaType);
 
-        if (allMedia.isEmpty()) {
-            throw new RuntimeException("Nenhuma mídia disponível");
-        }
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhuma mídia disponível");
+        
 
-        if (lastMediaId != null) {
-            allMedia.removeIf(media -> media.getId().equals(lastMediaId));
-        }
+        if (lastMediaId != null) allMedia.removeIf(media -> media.getId().equals(lastMediaId));
+        
 
-        if (allMedia.isEmpty()) {
-            throw new RuntimeException("Nenhuma mídia disponível após remover a última mídia");
-        }
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Todas as mídias Já foram recomendadas");
+        
 
         Random random = new Random();
         MediaEntity media = null;
@@ -63,10 +62,8 @@ public class MediaService {
             }
         }
 
-        if (media == null) {
-            throw new RuntimeException("Nenhuma mídia foi encontrada!");
-        }
-
+        if (media == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhuma mídia foi encontrada!");
+        
         lastMediaId = media.getId();
 
         return mediaMapper.toDto(media);
