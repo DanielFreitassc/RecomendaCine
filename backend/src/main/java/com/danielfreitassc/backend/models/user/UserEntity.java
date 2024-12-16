@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.danielfreitassc.backend.models.media.MediaTypeEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import jakarta.persistence.Column;
@@ -48,6 +49,8 @@ public class UserEntity implements UserDetails{
     @Column(columnDefinition="TEXT")
     private String image;
 
+    private MediaTypeEnum favoriteMediaType;
+
     @ElementCollection
     private List<String> favoriteGenre;
 
@@ -75,12 +78,13 @@ public class UserEntity implements UserDetails{
         return lockoutExpiration != null && LocalDateTime.now().isBefore(lockoutExpiration);
     }
 
-    public UserEntity(String name,String username, String email, String image, String password,List<String> favoriteGenre,UserRole role) {
+    public UserEntity(String name,String username, String email, String image, String password, MediaTypeEnum favoriteMediaType, List<String> favoriteGenre,UserRole role) {
         this.username = username;
         this.email = email;
         this.name = name;
         this.image = image;
         this.password = password;
+        this.favoriteMediaType = favoriteMediaType;
         this.favoriteGenre = favoriteGenre;
         this.role = (role != null) ? role : UserRole.USER;
     }

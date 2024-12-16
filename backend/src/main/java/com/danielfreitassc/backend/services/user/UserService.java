@@ -64,6 +64,10 @@ public class UserService {
             userEntity.setEmail(userRequestDto.email());
         }
         
+        if (userRequestDto.favoriteMediaType() != userOptional.get().getFavoriteMediaType()) {
+            userEntity.setFavoriteMediaType(userRequestDto.favoriteMediaType());
+        }
+
         if (userRequestDto.role() != userOptional.get().getRole()) {
             userEntity.setRole(userRequestDto.role());
         }
