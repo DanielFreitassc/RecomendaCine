@@ -39,9 +39,6 @@ public class MediaService {
     }
 
     public MediaResponseDto recommendation(UUID id) {
-        //List<String> genres = Arrays.asList("Suspense");
-        //MediaTypeEnum mediaType = MediaTypeEnum.MOVIE;
-
         Optional<UserEntity> userId = userRepository.findById(id);
         if(userId.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Usuário não encontrado");
         UserEntity userEntity = userId.get();
