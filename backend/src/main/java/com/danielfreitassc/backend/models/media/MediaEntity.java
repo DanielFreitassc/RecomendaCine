@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +27,6 @@ public class MediaEntity {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     private String title;
-    @Lob
     private String coverImage;
     
     @Column(columnDefinition="TEXT")
@@ -38,6 +36,10 @@ public class MediaEntity {
     @CollectionTable(name = "media_entity_genre", joinColumns = @JoinColumn(name = "media_id"))
     @Column(name = "genre")
     private List<String> genre;
+
+    @ElementCollection
+    @CollectionTable(name = "media_entity_where_to_watch", joinColumns = @JoinColumn(name = "media_id"))
+    @Column(name = "where_to_watch")
     private List<String> whereToWatch; 
     private MediaTypeEnum mediaType;
 }
