@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
+import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
 import com.danielfreitassc.backend.services.media.MediaService;
@@ -38,5 +40,15 @@ public class MediaController {
     @GetMapping("/recommendation/{id}")
     public MediaResponseDto recommendation(@PathVariable UUID id) {
         return mediaService.recommendation(id);
+    }
+
+    @PostMapping("/favorite")
+    public FavoriteResponseDto saveFavorite(@RequestBody @Valid FavoriteRequestDto favoriteRequestDto) {
+        return  mediaService.saveFavorite(favoriteRequestDto);
+    }
+
+    @GetMapping("/favorite/{id}")
+    public FavoriteResponseDto getAllFavoriteMedia(@PathVariable UUID id) {
+        return mediaService.getAllFavoriteMedia(id);
     }
 }

@@ -11,11 +11,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
+import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
+import com.danielfreitassc.backend.mappers.favorite.FavoriteMapper;
 import com.danielfreitassc.backend.mappers.media.MediaMapper;
+import com.danielfreitassc.backend.models.favorite.FavoriteEntity;
 import com.danielfreitassc.backend.models.media.MediaEntity;
 import com.danielfreitassc.backend.models.user.UserEntity;
+import com.danielfreitassc.backend.repositories.favorite.FavoriteRepository;
 import com.danielfreitassc.backend.repositories.media.MediaRepository;
 import com.danielfreitassc.backend.repositories.user.UserRepository;
 
@@ -28,6 +33,8 @@ public class MediaService {
     private final MediaMapper mediaMapper;
     private static Long lastMediaId = null;
     private final UserRepository userRepository;
+    private final FavoriteRepository favoriteRepository; 
+    private final FavoriteMapper favoriteMapper;
 
     public MediaResponseDto create(MediaRequestDto mediaRequestDto) {
         return mediaMapper.toDto(mediaRepository.save(mediaMapper.toEntity(mediaRequestDto)));
@@ -72,5 +79,15 @@ public class MediaService {
         lastMediaId = media.getId();
 
         return mediaMapper.toDto(media);
+    }
+    
+    public FavoriteResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
+        return favoriteMapper.toDto(favoriteMapper.toEntity(favoriteRequestDto));
+    }
+
+    public FavoriteResponseDto getAllFavoriteMedia(UUID id) {
+        Optional<FavoriteEntity> favorite = favoriteRepository.findByUser_Id(id);
+        if(favorite.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
+        return favoriteMapper.toDto(favorite.get());
     }
 }

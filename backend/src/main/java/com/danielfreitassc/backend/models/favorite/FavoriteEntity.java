@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,8 +28,10 @@ public class FavoriteEntity {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-    private MediaEntity mediaId;
-    private UserEntity userId;
+    @ManyToOne
+    private MediaEntity media;
+    @ManyToOne
+    private UserEntity user;
     @CreationTimestamp
     private Timestamp createdAt;
 }
