@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS media (
 );
 
 CREATE TABLE IF NOT EXISTS media_entity_genre (
+    id SERIAL PRIMARY KEY,
     media_id BIGINT NOT NULL,
     genre VARCHAR(255) NOT NULL,
     CONSTRAINT fk_media FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
@@ -14,6 +15,7 @@ CREATE TABLE IF NOT EXISTS media_entity_genre (
 );
 
 CREATE TABLE IF NOT EXISTS media_entity_where_to_watch (
+    id SERIAL PRIMARY KEY,
     media_id BIGINT NOT NULL,
     where_to_watch VARCHAR(255) NOT NULL,
     CONSTRAINT fk_media_where_to_watch FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE,
