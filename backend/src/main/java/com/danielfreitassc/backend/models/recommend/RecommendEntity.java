@@ -1,4 +1,4 @@
-package com.danielfreitassc.backend.models.favorite;
+package com.danielfreitassc.backend.models.recommend;
 
 import java.sql.Timestamp;
 
@@ -22,20 +22,20 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Table(name="favorites")
-public class FavoriteEntity {
+@NoArgsConstructor
+@Table(name="recommend_history")
+public class RecommendEntity {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne
-    @JoinColumn(name="media_id",nullable=false)
+    @JoinColumn(name="media_id")
     private MediaEntity media;
 
     @ManyToOne
-    @JoinColumn(name="user_id",nullable=false)
+    @JoinColumn(name="user_id")
     private UserEntity user;
 
     @CreationTimestamp

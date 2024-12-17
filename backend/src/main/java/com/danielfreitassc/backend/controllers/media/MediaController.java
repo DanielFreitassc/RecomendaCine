@@ -18,6 +18,7 @@ import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
+import com.danielfreitassc.backend.dtos.recommend.RecommendResponseDto;
 import com.danielfreitassc.backend.dtos.user.ResponseMessageDTO;
 import com.danielfreitassc.backend.services.media.MediaService;
 
@@ -58,5 +59,10 @@ public class MediaController {
     @GetMapping("/favorite/{id}")
     public List<FavoriteResponseDto> getAllFavoriteMedia(@PathVariable UUID id) {
         return mediaService.getAllFavoriteMedia(id);
+    }
+
+    @GetMapping("/recommend/{id}")
+    public List<RecommendResponseDto> getRecommend(@PathVariable UUID id) {
+        return mediaService.getRecommend(id);
     }
 }

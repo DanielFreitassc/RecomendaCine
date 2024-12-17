@@ -15,14 +15,19 @@ import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
+import com.danielfreitassc.backend.dtos.recommend.RecommendRequestDto;
+import com.danielfreitassc.backend.dtos.recommend.RecommendResponseDto;
 import com.danielfreitassc.backend.dtos.user.ResponseMessageDTO;
 import com.danielfreitassc.backend.mappers.favorite.FavoriteMapper;
 import com.danielfreitassc.backend.mappers.media.MediaMapper;
+import com.danielfreitassc.backend.mappers.recommend.RecommendMapper;
 import com.danielfreitassc.backend.models.favorite.FavoriteEntity;
 import com.danielfreitassc.backend.models.media.MediaEntity;
+import com.danielfreitassc.backend.models.recommend.RecommendEntity;
 import com.danielfreitassc.backend.models.user.UserEntity;
 import com.danielfreitassc.backend.repositories.favorite.FavoriteRepository;
 import com.danielfreitassc.backend.repositories.media.MediaRepository;
+import com.danielfreitassc.backend.repositories.recommend.RecommendRepository;
 import com.danielfreitassc.backend.repositories.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -36,6 +41,8 @@ public class MediaService {
     private final UserRepository userRepository;
     private final FavoriteRepository favoriteRepository; 
     private final FavoriteMapper favoriteMapper;
+    private final RecommendMapper recommendMapper;
+    private final RecommendRepository recommendRepository;
 
     public MediaResponseDto create(MediaRequestDto mediaRequestDto) {
         return mediaMapper.toDto(mediaRepository.save(mediaMapper.toEntity(mediaRequestDto)));
@@ -48,19 +55,16 @@ public class MediaService {
 
     public MediaResponseDto recommendation(UUID id) {
         Optional<UserEntity> userId = userRepository.findById(id);
-        if(userId.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Usuário não encontrado");
+        if (userId.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado");
         UserEntity userEntity = userId.get();
 
         List<MediaEntity> allMedia = mediaRepository.findByGenreInAndMediaType(userEntity.getFavoriteGenre(), userEntity.getFavoriteMediaType());
 
-        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhuma mídia disponível");
-        
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia disponível");
 
         if (lastMediaId != null) allMedia.removeIf(media -> media.getId().equals(lastMediaId));
-        
 
-        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Todas as mídias Já foram recomendadas");
-        
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todas as mídias já foram recomendadas");
 
         Random random = new Random();
         MediaEntity media = null;
@@ -75,12 +79,22 @@ public class MediaService {
             }
         }
 
-        if (media == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhuma mídia foi encontrada!");
-        
+        if (media == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia foi encontrada!");
+
+        Optional<RecommendEntity> existingRecommendation = recommendRepository.findByUserAndMedia(userEntity, media);
+        if (existingRecommendation.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta recomendação já foi feita para o usuário");
+        }
+
+        RecommendRequestDto recommendRequestDto = new RecommendRequestDto(media.getId(), userEntity.getId());
+        RecommendEntity recommendEntity = recommendMapper.toEntity(recommendRequestDto);
+        recommendRepository.save(recommendEntity);
+
         lastMediaId = media.getId();
 
         return mediaMapper.toDto(media);
     }
+
     
     public FavoriteResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
         boolean exists = favoriteRepository.existsByUser_IdAndMedia_Id(
@@ -112,5 +126,11 @@ public class MediaService {
         List<FavoriteEntity> favorite = favoriteRepository.findByUser_Id(id);
         if(favorite.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
         return favorite.stream().map(favoriteMapper::toDto).toList();
+    }
+
+    public List<RecommendResponseDto> getRecommend(UUID id) {
+        List<RecommendEntity> recommend = recommendRepository.findByUser_Id(id);
+        if(recommend.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
+        return recommend.stream().map(recommendMapper::toDto).toList();
     }
 }

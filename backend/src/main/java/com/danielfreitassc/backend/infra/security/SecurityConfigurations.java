@@ -38,7 +38,6 @@ public class SecurityConfigurations {
                 .requestMatchers(HttpMethod.POST,"/media").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media/favorite").hasAnyRole("ADMIN","USER")
-                .requestMatchers(HttpMethod.GET,"/media/recommendation").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media/{id}").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.PUT,"/media/{id}").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.DELETE,"/media/{id}").hasAnyRole("ADMIN","USER")
