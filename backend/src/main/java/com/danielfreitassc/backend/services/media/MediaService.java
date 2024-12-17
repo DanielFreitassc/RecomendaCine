@@ -110,8 +110,6 @@ public class MediaService {
         return mediaMapper.toDto(media);
     }
     
-
-    
     public FavoriteResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
         boolean exists = favoriteRepository.existsByUser_IdAndMedia_Id(
             favoriteRequestDto.userId(),
