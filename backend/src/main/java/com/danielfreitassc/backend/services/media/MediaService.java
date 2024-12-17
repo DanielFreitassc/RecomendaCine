@@ -15,6 +15,7 @@ import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
+import com.danielfreitassc.backend.dtos.user.ResponseMessageDTO;
 import com.danielfreitassc.backend.mappers.favorite.FavoriteMapper;
 import com.danielfreitassc.backend.mappers.media.MediaMapper;
 import com.danielfreitassc.backend.models.favorite.FavoriteEntity;
@@ -82,12 +83,34 @@ public class MediaService {
     }
     
     public FavoriteResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
-        return favoriteMapper.toDto(favoriteMapper.toEntity(favoriteRequestDto));
+        boolean exists = favoriteRepository.existsByUser_IdAndMedia_Id(
+            favoriteRequestDto.userId(),
+            favoriteRequestDto.mediaId()
+        );
+
+        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mídia já está nos favoritos");
+        
+        return favoriteMapper.toDto(favoriteRepository.save(favoriteMapper.toEntity(favoriteRequestDto)));
     }
 
-    public FavoriteResponseDto getAllFavoriteMedia(UUID id) {
-        Optional<FavoriteEntity> favorite = favoriteRepository.findByUser_Id(id);
+    public ResponseMessageDTO removeFavorite(FavoriteRequestDto favoriteRequestDto) {
+        Optional<FavoriteEntity> favorite = favoriteRepository.findByUser_IdAndMedia_Id(
+            favoriteRequestDto.userId(),
+            favoriteRequestDto.mediaId()
+        );
+    
+        if (favorite.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mídia já foi removida dos favoritos!");
+        }
+    
+        favoriteRepository.delete(favorite.get());
+    
+        return new ResponseMessageDTO("Mídia removida com sucesso dos favoritos!");
+    }
+    
+    public List<FavoriteResponseDto> getAllFavoriteMedia(UUID id) {
+        List<FavoriteEntity> favorite = favoriteRepository.findByUser_Id(id);
         if(favorite.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
-        return favoriteMapper.toDto(favorite.get());
+        return favorite.stream().map(favoriteMapper::toDto).toList();
     }
 }

@@ -1,10 +1,12 @@
 package com.danielfreitassc.backend.controllers.media;
 
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
+import com.danielfreitassc.backend.dtos.user.ResponseMessageDTO;
 import com.danielfreitassc.backend.services.media.MediaService;
 
 import jakarta.validation.Valid;
@@ -44,11 +47,16 @@ public class MediaController {
 
     @PostMapping("/favorite")
     public FavoriteResponseDto saveFavorite(@RequestBody @Valid FavoriteRequestDto favoriteRequestDto) {
-        return  mediaService.saveFavorite(favoriteRequestDto);
+        return mediaService.saveFavorite(favoriteRequestDto);
     }
 
+    @DeleteMapping("/favorite")
+    public ResponseMessageDTO removeFavorite(@RequestBody @Valid FavoriteRequestDto favoriteRequestDto) {
+        return mediaService.removeFavorite(favoriteRequestDto);
+    }
+    
     @GetMapping("/favorite/{id}")
-    public FavoriteResponseDto getAllFavoriteMedia(@PathVariable UUID id) {
+    public List<FavoriteResponseDto> getAllFavoriteMedia(@PathVariable UUID id) {
         return mediaService.getAllFavoriteMedia(id);
     }
 }
