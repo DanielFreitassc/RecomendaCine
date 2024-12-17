@@ -64,43 +64,52 @@ public class MediaService {
         Optional<UserEntity> userId = userRepository.findById(id);
         if (userId.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado");
         UserEntity userEntity = userId.get();
-
-        List<MediaEntity> allMedia = mediaRepository.findByGenreInAndMediaType(userEntity.getFavoriteGenre(), userEntity.getFavoriteMediaType());
-
+    
+        List<MediaEntity> allMedia = mediaRepository.findByGenreInAndMediaType(
+            userEntity.getFavoriteGenre(), 
+            userEntity.getFavoriteMediaType()
+        );
+    
         if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia disponível");
-
-        if (lastMediaId != null) allMedia.removeIf(media -> media.getId().equals(lastMediaId));
-
-        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todas as mídias já foram recomendadas");
-
+    
+        List<Long> dislikedMediaIds = dislikedRepository.findByUser_Id(id).stream()
+            .map(disliked -> disliked.getMedia().getId())
+            .toList();
+    
+        allMedia.removeIf(media -> dislikedMediaIds.contains(media.getId()) || 
+                                    (lastMediaId != null && media.getId().equals(lastMediaId)));
+    
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todas as mídias já foram recomendadas ou estão na lista de exclusão.");
+    
         Random random = new Random();
         MediaEntity media = null;
         int maxAttempts = 10;
-
+    
         for (int attempts = 0; attempts < maxAttempts; attempts++) {
             int randomIndex = random.nextInt(allMedia.size());
             media = allMedia.get(randomIndex);
-
+    
             if (media != null) {
                 break;
             }
         }
-
+    
         if (media == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia foi encontrada!");
-
+    
         Optional<RecommendEntity> existingRecommendation = recommendRepository.findByUserAndMedia(userEntity, media);
         if (existingRecommendation.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta recomendação já foi feita para o usuário");
         }
-
+    
         RecommendRequestDto recommendRequestDto = new RecommendRequestDto(media.getId(), userEntity.getId());
         RecommendEntity recommendEntity = recommendMapper.toEntity(recommendRequestDto);
         recommendRepository.save(recommendEntity);
-
+    
         lastMediaId = media.getId();
-
+    
         return mediaMapper.toDto(media);
     }
+    
 
     
     public FavoriteResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
