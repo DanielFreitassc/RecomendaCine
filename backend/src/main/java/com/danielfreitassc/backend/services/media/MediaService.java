@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.danielfreitassc.backend.dtos.disliked.DislikedRequestDto;
+import com.danielfreitassc.backend.dtos.disliked.DislikedResponseDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
@@ -18,13 +20,16 @@ import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
 import com.danielfreitassc.backend.dtos.recommend.RecommendRequestDto;
 import com.danielfreitassc.backend.dtos.recommend.RecommendResponseDto;
 import com.danielfreitassc.backend.dtos.user.ResponseMessageDTO;
+import com.danielfreitassc.backend.mappers.disliked.DislikedMapper;
 import com.danielfreitassc.backend.mappers.favorite.FavoriteMapper;
 import com.danielfreitassc.backend.mappers.media.MediaMapper;
 import com.danielfreitassc.backend.mappers.recommend.RecommendMapper;
+import com.danielfreitassc.backend.models.disliked.DislikedEntity;
 import com.danielfreitassc.backend.models.favorite.FavoriteEntity;
 import com.danielfreitassc.backend.models.media.MediaEntity;
 import com.danielfreitassc.backend.models.recommend.RecommendEntity;
 import com.danielfreitassc.backend.models.user.UserEntity;
+import com.danielfreitassc.backend.repositories.disliked.DislikedRepository;
 import com.danielfreitassc.backend.repositories.favorite.FavoriteRepository;
 import com.danielfreitassc.backend.repositories.media.MediaRepository;
 import com.danielfreitassc.backend.repositories.recommend.RecommendRepository;
@@ -43,6 +48,8 @@ public class MediaService {
     private final FavoriteMapper favoriteMapper;
     private final RecommendMapper recommendMapper;
     private final RecommendRepository recommendRepository;
+    private final DislikedMapper dislikedMapper;
+    private final DislikedRepository dislikedRepository;
 
     public MediaResponseDto create(MediaRequestDto mediaRequestDto) {
         return mediaMapper.toDto(mediaRepository.save(mediaMapper.toEntity(mediaRequestDto)));
@@ -132,5 +139,37 @@ public class MediaService {
         List<RecommendEntity> recommend = recommendRepository.findByUser_Id(id);
         if(recommend.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
         return recommend.stream().map(recommendMapper::toDto).toList();
+    }
+    
+    public DislikedResponseDto saveDisliked(DislikedRequestDto dislikedRequestDto) {
+        boolean exists = dislikedRepository.existsByUser_IdAndMedia_Id(
+            dislikedRequestDto.userId(),
+            dislikedRequestDto.mediaId()
+        );
+
+        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia já foi adicionada à lista de exclusão.");
+        
+        return dislikedMapper.toDto(dislikedRepository.save(dislikedMapper.toEntity(dislikedRequestDto)));
+    }
+
+    public ResponseMessageDTO removeDisliked(DislikedRequestDto dislikedRequestDto) {
+        Optional<DislikedEntity> disliked = dislikedRepository.findByUser_IdAndMedia_Id(
+            dislikedRequestDto.userId(),
+            dislikedRequestDto.mediaId()
+        );
+    
+        if (disliked.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia não foi adicionada à lista de exclusão.");
+        }
+    
+        dislikedRepository.delete(disliked.get());
+    
+        return new ResponseMessageDTO("A mídia foi removida da lista de exclusão.");
+    }
+
+    public List<DislikedResponseDto> getDisliked(UUID id) {
+        List<DislikedEntity> disliked = dislikedRepository.findByUser_Id(id);
+        if(disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
+        return disliked.stream().map(dislikedMapper::toDto).toList();
     }
 }

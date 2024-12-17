@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.danielfreitassc.backend.dtos.disliked.DislikedRequestDto;
+import com.danielfreitassc.backend.dtos.disliked.DislikedResponseDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
@@ -64,5 +66,20 @@ public class MediaController {
     @GetMapping("/recommend/{id}")
     public List<RecommendResponseDto> getRecommend(@PathVariable UUID id) {
         return mediaService.getRecommend(id);
+    }
+
+    @PostMapping("/disliked")
+    public DislikedResponseDto saveDisliked(@RequestBody @Valid DislikedRequestDto dislikedRequestDto) {
+        return mediaService.saveDisliked(dislikedRequestDto);
+    }
+
+    @DeleteMapping("/disliked")
+    public ResponseMessageDTO removeDisliked(@RequestBody @Valid DislikedRequestDto dislikedRequestDto) {
+        return  mediaService.removeDisliked(dislikedRequestDto);
+    }
+
+    @GetMapping("/disliked/{id}")
+    public List<DislikedResponseDto> getDisliked(@PathVariable UUID id) {
+        return mediaService.getDisliked(id);
     }
 }
