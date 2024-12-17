@@ -76,10 +76,12 @@ public class MediaService {
             .map(disliked -> disliked.getMedia().getId())
             .toList();
     
-        allMedia.removeIf(media -> dislikedMediaIds.contains(media.getId()) || 
-                                    (lastMediaId != null && media.getId().equals(lastMediaId)));
+        allMedia.removeIf(media -> 
+            dislikedMediaIds.contains(media.getId()) || 
+            (lastMediaId != null && media.getId().equals(lastMediaId)) 
+        );
     
-        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todas as mídias já foram recomendadas ou estão na lista de exclusão.");
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia disponível para recomendação.");
     
         Random random = new Random();
         MediaEntity media = null;
@@ -97,18 +99,19 @@ public class MediaService {
         if (media == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia foi encontrada!");
     
         Optional<RecommendEntity> existingRecommendation = recommendRepository.findByUserAndMedia(userEntity, media);
-        if (existingRecommendation.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta recomendação já foi feita para o usuário");
-        }
     
-        RecommendRequestDto recommendRequestDto = new RecommendRequestDto(media.getId(), userEntity.getId());
-        RecommendEntity recommendEntity = recommendMapper.toEntity(recommendRequestDto);
-        recommendRepository.save(recommendEntity);
+        if (existingRecommendation.isEmpty()) {
+            RecommendRequestDto recommendRequestDto = new RecommendRequestDto(media.getId(), userEntity.getId());
+            RecommendEntity recommendEntity = recommendMapper.toEntity(recommendRequestDto);
+            recommendRepository.save(recommendEntity);
+        }
     
         lastMediaId = media.getId();
     
         return mediaMapper.toDto(media);
     }
+    
+    
     
     public FavoriteResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
         boolean exists = favoriteRepository.existsByUser_IdAndMedia_Id(
