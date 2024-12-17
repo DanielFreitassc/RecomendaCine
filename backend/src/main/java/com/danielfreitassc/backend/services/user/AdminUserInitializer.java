@@ -29,11 +29,11 @@ public class AdminUserInitializer {
     @PostConstruct
     public void init() {
 
-        if(userRepository.findByUsername(adminUsername) != null) {
+        if(userRepository.findByEmail(adminUsername) != null) {
             System.out.println("Erro");
         } else {
             String encryptedPassword =  new BCryptPasswordEncoder().encode(adminPassword);
-            UserRequestDto adminUserDTO = new UserRequestDto("Admin", "admin", "foto", "admin@admin.com", encryptedPassword,MediaTypeEnum.MOVIE ,Arrays.asList("Ação"),  UserRole.ADMIN);
+            UserRequestDto adminUserDTO = new UserRequestDto("Admin", "foto", "admin@admin.com", encryptedPassword,MediaTypeEnum.MOVIE ,Arrays.asList("Ação"),  UserRole.ADMIN);
             
             userRepository.save(userMapper.toEntity(adminUserDTO));
         }

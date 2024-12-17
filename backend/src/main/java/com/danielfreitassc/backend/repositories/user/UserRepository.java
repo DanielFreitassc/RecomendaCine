@@ -13,7 +13,7 @@ import com.danielfreitassc.backend.models.user.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, UUID>{
 
-    UserDetails findByUsername(String username);
+    UserDetails findByEmail(String email);
     
     @Query("SELECT u FROM UserEntity u WHERE UPPER(u.name) LIKE CONCAT('%',UPPER(:search),'%') ORDER BY createdAt DESC")
     Page<UserEntity> findAll(Pageable pageable, String search);

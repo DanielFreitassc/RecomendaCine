@@ -26,7 +26,7 @@ public class UserService {
 
 
     public UserResponseDto create(UserRequestDto userRequestDto) {
-        if(userRepository.findByUsername(userRequestDto.username()) != null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Usuário já cadatrado");
+        if(userRepository.findByEmail(userRequestDto.email()) != null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Usuário já cadatrado");
         String encryptedPassword =  new BCryptPasswordEncoder().encode(userRequestDto.password());
         UserEntity userEntity = userRepository.save(userMapper.toEntity(userRequestDto));
         userEntity.setPassword(encryptedPassword);
@@ -53,9 +53,6 @@ public class UserService {
         
         if (userRequestDto.name() != null && !userRequestDto.name().isBlank()) {
             userEntity.setName(userRequestDto.name());
-        }
-        if (userRequestDto.username() != null && !userRequestDto.username().isBlank()) {
-            userEntity.setUsername(userRequestDto.username());
         }
         if (userRequestDto.image() != null && !userRequestDto.image().isBlank()) {
             userEntity.setImage(userRequestDto.image());

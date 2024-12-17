@@ -44,7 +44,7 @@ public class UserEntity implements UserDetails{
     @GeneratedValue(strategy=GenerationType.UUID)
     private UUID id;
     private String name;
-    private String username;
+    @Pattern(regexp = "^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "O formato do e-mail inserido é inválido.")
     private String email;
     @Column(columnDefinition="TEXT")
     private String image;
@@ -78,8 +78,7 @@ public class UserEntity implements UserDetails{
         return lockoutExpiration != null && LocalDateTime.now().isBefore(lockoutExpiration);
     }
 
-    public UserEntity(String name,String username, String email, String image, String password, MediaTypeEnum favoriteMediaType, List<String> favoriteGenre,UserRole role) {
-        this.username = username;
+    public UserEntity(String name, String email, String image, String password, MediaTypeEnum favoriteMediaType, List<String> favoriteGenre,UserRole role) {
         this.email = email;
         this.name = name;
         this.image = image;
@@ -107,7 +106,7 @@ public class UserEntity implements UserDetails{
     }
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
     @Override
     public boolean isAccountNonExpired() {

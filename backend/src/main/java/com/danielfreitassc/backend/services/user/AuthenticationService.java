@@ -26,7 +26,7 @@ public class AuthenticationService {
     private final TokenService tokenService;
     
     public ResponseEntity<Object> login(AuthenticationDTO data) {
-        UserDetails userDetails = userRepository.findByUsername(data.username());
+        UserDetails userDetails = userRepository.findByEmail(data.email());
         if (!(userDetails instanceof UserEntity)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseMessageDTO("Usuário não encontrado."));
         }
@@ -37,7 +37,7 @@ public class AuthenticationService {
         }
 
         try {
-            var usernamePassword = new UsernamePasswordAuthenticationToken(data.username(), data.password());
+            var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
             authenticationManager.authenticate(usernamePassword);
             var token = tokenService.generateToken(user);
             user.resetLoginAttempts();
