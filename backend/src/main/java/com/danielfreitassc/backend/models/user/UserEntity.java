@@ -57,7 +57,7 @@ public class UserEntity implements UserDetails{
     @CreationTimestamp
     private Timestamp createdAt;
 
-    @Length(min = 10, max = 255, message = "A senha deve Conter no mínimo 10 caracteres.")
+    @Length(min = 6, message = "A senha deve Conter no mínimo 6 caracteres.")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z]).*$", message = "A senha deve conter pelo menos uma letra minúscula e uma letra maiúscula.")
     private String password;
 

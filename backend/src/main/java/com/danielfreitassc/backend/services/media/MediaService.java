@@ -34,12 +34,13 @@ import com.danielfreitassc.backend.repositories.favorite.FavoriteRepository;
 import com.danielfreitassc.backend.repositories.media.MediaRepository;
 import com.danielfreitassc.backend.repositories.recommend.RecommendRepository;
 import com.danielfreitassc.backend.repositories.user.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class MediaService {
+
+
     private final MediaRepository mediaRepository;
     private final MediaMapper mediaMapper;
     private static Long lastMediaId = null;
@@ -61,9 +62,8 @@ public class MediaService {
     }
 
     public MediaResponseDto recommendation(UUID id) {
-        Optional<UserEntity> userId = userRepository.findById(id);
-        if (userId.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado");
-        UserEntity userEntity = userId.get();
+        // Antes de recomendar verfica se usuário existe
+        UserEntity userEntity = findUserOrThrow(id);
     
         List<MediaEntity> allMedia = mediaRepository.findByGenreInAndMediaType(
             userEntity.getFavoriteGenre(), 
@@ -139,47 +139,101 @@ public class MediaService {
         return new ResponseMessageDTO("Mídia removida com sucesso dos favoritos!");
     }
     
+
+    // Retorna lista de favoritos de um usuário
     public List<FavoriteResponseDto> getAllFavoriteMedia(UUID id) {
-        List<FavoriteEntity> favorite = favoriteRepository.findByUser_Id(id);
-        if(favorite.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
-        return favorite.stream().map(favoriteMapper::toDto).toList();
+        return findFavorieOrThrow(id).stream().map(favoriteMapper::toDto).toList();
     }
 
+    // Rotorna lista de filmes já recomendados
     public List<RecommendResponseDto> getRecommend(UUID id) {
-        List<RecommendEntity> recommend = recommendRepository.findByUser_Id(id);
-        if(recommend.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
-        return recommend.stream().map(recommendMapper::toDto).toList();
+        return  findRecommendOrThrow(id).stream().map(recommendMapper::toDto).toList();
     }
-    
-    public DislikedResponseDto saveDisliked(DislikedRequestDto dislikedRequestDto) {
-        boolean exists = dislikedRepository.existsByUser_IdAndMedia_Id(
-            dislikedRequestDto.userId(),
-            dislikedRequestDto.mediaId()
-        );
 
-        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia já foi adicionada à lista de exclusão.");
+    // Salva filme em lista de não recomendados
+    public DislikedResponseDto saveDisliked(DislikedRequestDto dislikedRequestDto) {
+        // Verifica se já esta na lista de não recomendados
+        ensureMediaNotDisliked(dislikedRequestDto);
         
         return dislikedMapper.toDto(dislikedRepository.save(dislikedMapper.toEntity(dislikedRequestDto)));
     }
 
+    // Remove mídia da lista de não recomendados
     public ResponseMessageDTO removeDisliked(DislikedRequestDto dislikedRequestDto) {
+    
+        dislikedRepository.delete(verifyDislikedMedia(dislikedRequestDto));
+    
+        return new ResponseMessageDTO("A mídia foi removida da lista de não recomendados.");
+    }
+
+    // Retorna lista de não recomendados
+    public List<DislikedResponseDto> getDisliked(UUID id) {
+        return findAllDisliked(id).stream().map(dislikedMapper::toDto).toList();
+    }
+
+
+    // Função que verifica se mídia está presente na lista de não recomendados
+    private DislikedEntity verifyDislikedMedia(DislikedRequestDto dislikedRequestDto) {
+        // Chama função que verifica se usuário existe
+        findUserOrThrow(dislikedRequestDto.userId());
+
         Optional<DislikedEntity> disliked = dislikedRepository.findByUser_IdAndMedia_Id(
             dislikedRequestDto.userId(),
             dislikedRequestDto.mediaId()
         );
     
-        if (disliked.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia não foi adicionada à lista de exclusão.");
-        }
-    
-        dislikedRepository.delete(disliked.get());
-    
-        return new ResponseMessageDTO("A mídia foi removida da lista de exclusão.");
+        if (disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia não foi adicionada à lista de exclusão.");
+        return disliked.get();
     }
 
-    public List<DislikedResponseDto> getDisliked(UUID id) {
+    // Função para verificar se filme já está na lista de filmes não recomendados
+    private boolean ensureMediaNotDisliked(DislikedRequestDto dislikedRequestDto) {
+        // Chama função que verifica se usuário existe
+        findUserOrThrow(dislikedRequestDto.userId());
+
+        boolean exists = dislikedRepository.existsByUser_IdAndMedia_Id( 
+            dislikedRequestDto.userId(),
+            dislikedRequestDto.mediaId()
+        );
+
+        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia já foi adicionada à lista de exclusão.");
+        return exists;
+    }
+
+    // Função que faz uma busca na lista de recomendados relacionado ao id do usuário.
+    private List<RecommendEntity> findRecommendOrThrow(UUID id) {
+        // Chama função que verifica se usuário existe
+        findUserOrThrow(id);
+
+        List<RecommendEntity> recommend = recommendRepository.findByUser_Id(id);
+        if(recommend.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de recomendados está vazia");
+        return recommend;
+    }
+
+    // Função que faz uma busca na lista de favoritos relacionado ao id do usuário.
+    private List<FavoriteEntity> findFavorieOrThrow(UUID id) {
+        // Chama função que verifica se usuário existe
+        findUserOrThrow(id);
+
+        List<FavoriteEntity> favorites = favoriteRepository.findByUser_Id(id);
+        if(favorites.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de filmes favoritos está vaiza");
+        return favorites;
+    }
+
+    // Função que faz uma busca na lista de dislike relacionado ao id do usuário.
+    private List<DislikedEntity> findAllDisliked(UUID id) {
+        // Chama função que verifica se usuário existe
+        findUserOrThrow(id);
+
         List<DislikedEntity> disliked = dislikedRepository.findByUser_Id(id);
-        if(disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado.");
-        return disliked.stream().map(dislikedMapper::toDto).toList();
+        if(disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de filmes não recomendados está vazia");
+        return disliked;
+    }
+
+    // Função pra verficar se usuário existe, se existir retorna o mesmo.
+    private UserEntity findUserOrThrow(UUID id) {
+        Optional<UserEntity> user = userRepository.findById(id);
+        if(user.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado");
+        return user.get();
     }
 }
