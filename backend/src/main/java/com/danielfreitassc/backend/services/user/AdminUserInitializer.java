@@ -8,8 +8,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.danielfreitassc.backend.dtos.user.UserRequestDto;
-import com.danielfreitassc.backend.mappers.user.UserMapper;
 import com.danielfreitassc.backend.models.media.MediaTypeEnum;
 import com.danielfreitassc.backend.models.user.UserEntity;
 import com.danielfreitassc.backend.models.user.UserRole;

@@ -16,5 +16,6 @@ public interface UserMapper {
     @Mapping(target="loginAttempts", ignore=true)
     @Mapping(target="lockoutExpiration",ignore=true)
     @Mapping(target="authorities",ignore=true)
+    @Mapping(target="role",ignore=true)
     UserEntity toEntity(UserRequestDto userRequestDto);
 }
