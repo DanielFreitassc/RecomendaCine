@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.danielfreitassc.backend.dtos.common.MessageResponseDto;
 import com.danielfreitassc.backend.dtos.disliked.DislikedRequestDto;
 import com.danielfreitassc.backend.dtos.disliked.DislikedResponseDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
@@ -19,7 +20,6 @@ import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
 import com.danielfreitassc.backend.dtos.recommend.RecommendRequestDto;
 import com.danielfreitassc.backend.dtos.recommend.RecommendResponseDto;
-import com.danielfreitassc.backend.dtos.user.ResponseMessageDTO;
 import com.danielfreitassc.backend.mappers.disliked.DislikedMapper;
 import com.danielfreitassc.backend.mappers.favorite.FavoriteMapper;
 import com.danielfreitassc.backend.mappers.media.MediaMapper;
@@ -124,7 +124,7 @@ public class MediaService {
         return favoriteMapper.toDto(favoriteRepository.save(favoriteMapper.toEntity(favoriteRequestDto)));
     }
 
-    public ResponseMessageDTO removeFavorite(FavoriteRequestDto favoriteRequestDto) {
+    public MessageResponseDto removeFavorite(FavoriteRequestDto favoriteRequestDto) {
         Optional<FavoriteEntity> favorite = favoriteRepository.findByUser_IdAndMedia_Id(
             favoriteRequestDto.userId(),
             favoriteRequestDto.mediaId()
@@ -136,7 +136,7 @@ public class MediaService {
     
         favoriteRepository.delete(favorite.get());
     
-        return new ResponseMessageDTO("Mídia removida com sucesso dos favoritos!");
+        return new MessageResponseDto("Mídia removida com sucesso dos favoritos!");
     }
     
 
@@ -159,11 +159,11 @@ public class MediaService {
     }
 
     // Remove mídia da lista de não recomendados
-    public ResponseMessageDTO removeDisliked(DislikedRequestDto dislikedRequestDto) {
+    public MessageResponseDto removeDisliked(DislikedRequestDto dislikedRequestDto) {
     
         dislikedRepository.delete(verifyDislikedMedia(dislikedRequestDto));
     
-        return new ResponseMessageDTO("A mídia foi removida da lista de não recomendados.");
+        return new MessageResponseDto("A mídia foi removida da lista de não recomendados.");
     }
 
     // Retorna lista de não recomendados

@@ -12,6 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,15 +27,16 @@ public class SecurityConfigurations {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 
-                .requestMatchers(HttpMethod.POST,"/user").permitAll()
-                .requestMatchers(HttpMethod.GET,"/user").permitAll()
-                .requestMatchers(HttpMethod.GET,"/user/{id}").permitAll()
-                .requestMatchers(HttpMethod.PATCH,"/user/{id}").permitAll()
-                .requestMatchers(HttpMethod.DELETE,"/user/{id}").permitAll()
+                .requestMatchers(HttpMethod.POST,"/users").permitAll()
+                .requestMatchers(HttpMethod.GET,"/users").permitAll()
+                .requestMatchers(HttpMethod.GET,"/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.PATCH,"/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.DELETE,"/users/{id}").permitAll()
                 
                     
                 .requestMatchers(HttpMethod.POST,"/media").hasAnyRole("ADMIN","USER")
@@ -46,20 +50,33 @@ public class SecurityConfigurations {
                 .requestMatchers(HttpMethod.POST, "/h2-console/**").permitAll()
 
                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                .requestMatchers(HttpMethod.GET,"/validation").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.GET,"/validation").permitAll()
                 
-                //Permite o swagger 
-                // .requestMatchers(HttpMethod.GET,"/v3/api-docs/swagger-config").permitAll()
-                // .requestMatchers(HttpMethod.GET,"/v3/api-docs").permitAll()
-                // .requestMatchers(HttpMethod.GET,"/swagger-ui/**").permitAll()
-
                 // Configuração para endpoint de erro
                 .requestMatchers("/error").anonymous()
-                .anyRequest().authenticated()
+                .anyRequest().denyAll()
 
                 ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin("http://localhost:19006");
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedMethod(HttpMethod.POST);
+        configuration.addAllowedMethod(HttpMethod.GET);
+        configuration.addAllowedMethod(HttpMethod.PUT);
+        configuration.addAllowedMethod(HttpMethod.PATCH);
+        configuration.addAllowedMethod(HttpMethod.DELETE);
+        configuration.addAllowedHeader("*"); 
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+    
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();

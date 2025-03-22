@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.danielfreitassc.backend.dtos.common.MessageResponseDto;
 import com.danielfreitassc.backend.dtos.disliked.DislikedRequestDto;
 import com.danielfreitassc.backend.dtos.disliked.DislikedResponseDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
@@ -21,7 +22,6 @@ import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
 import com.danielfreitassc.backend.dtos.recommend.RecommendResponseDto;
-import com.danielfreitassc.backend.dtos.user.ResponseMessageDTO;
 import com.danielfreitassc.backend.services.media.MediaService;
 
 import jakarta.validation.Valid;
@@ -54,7 +54,7 @@ public class MediaController {
     }
 
     @DeleteMapping("/favorite")
-    public ResponseMessageDTO removeFavorite(@RequestBody @Valid FavoriteRequestDto favoriteRequestDto) {
+    public MessageResponseDto removeFavorite(@RequestBody @Valid FavoriteRequestDto favoriteRequestDto) {
         return mediaService.removeFavorite(favoriteRequestDto);
     }
     
@@ -74,7 +74,7 @@ public class MediaController {
     }
 
     @DeleteMapping("/disliked")
-    public ResponseMessageDTO removeDisliked(@RequestBody @Valid DislikedRequestDto dislikedRequestDto) {
+    public MessageResponseDto removeDisliked(@RequestBody @Valid DislikedRequestDto dislikedRequestDto) {
         return  mediaService.removeDisliked(dislikedRequestDto);
     }
 

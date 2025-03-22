@@ -26,7 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -38,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping
-    public Page<UserResponseDto> getAllUsers(Pageable pageable, @RequestParam(value="search",required=false,defaultValue="") String search) {
+    public Page<UserResponseDto> getAllUsers(Pageable pageable, @RequestParam(required=false,defaultValue="") String search) {
         return userService.getAllUsers(pageable, search);
     }
 
