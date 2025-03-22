@@ -38,7 +38,6 @@ public class SecurityConfigurations {
                 .requestMatchers(HttpMethod.PATCH,"/users/{id}").permitAll()
                 .requestMatchers(HttpMethod.DELETE,"/users/{id}").permitAll()
                 
-                    
                 .requestMatchers(HttpMethod.POST,"/media").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media/favorite").hasAnyRole("ADMIN","USER")

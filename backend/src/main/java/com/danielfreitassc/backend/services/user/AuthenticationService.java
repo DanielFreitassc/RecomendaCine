@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.danielfreitassc.backend.dtos.common.MessageResponseDto;
 import com.danielfreitassc.backend.dtos.user.AuthenticationDTO;
 import com.danielfreitassc.backend.dtos.user.LoginResponseDTO;
 import com.danielfreitassc.backend.infra.security.TokenService;

@@ -10,10 +10,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.danielfreitassc.backend.dtos.common.MessageResponseDto;
 import com.danielfreitassc.backend.dtos.user.UserRequestDto;
 import com.danielfreitassc.backend.dtos.user.UserResponseDto;
 import com.danielfreitassc.backend.mappers.user.UserMapper;
 import com.danielfreitassc.backend.models.user.UserEntity;
+import com.danielfreitassc.backend.models.user.UserRole;
 import com.danielfreitassc.backend.repositories.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,32 +26,29 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    public MessageResponseDto create(UserRequestDto userRequestDto) {
+        checkDuplicateUsername(userRequestDto.email());
 
-    public UserResponseDto create(UserRequestDto userRequestDto) {
-        if(userRepository.findByEmail(userRequestDto.email()) != null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Usuário já cadatrado");
         String encryptedPassword =  new BCryptPasswordEncoder().encode(userRequestDto.password());
         UserEntity userEntity = userRepository.save(userMapper.toEntity(userRequestDto));
+
+        userEntity.setRole(UserRole.USER);
         userEntity.setPassword(encryptedPassword);
-        return userMapper.toDto(userRepository.save(userEntity));
-        
+        userRepository.save(userEntity);
+        return new MessageResponseDto("Usuário cadastrado com sucesso!");
     }
 
     public Page<UserResponseDto> getAllUsers(Pageable pageable, String search) {
-        Page<UserEntity> users = userRepository.findAll(pageable, search);
-        return users.map(userMapper::toDto);
+        return userRepository.findAll(pageable,search).map(userMapper::toDto);
     }
 
     public UserResponseDto getUserById(UUID id) {
-        Optional<UserEntity> user = userRepository.findById(id);
-        if(user.isEmpty()) throw  new ResponseStatusException(HttpStatus.NOT_FOUND,"Usuário não encontrado");
-        return userMapper.toDto(user.get());
+        return userMapper.toDto(findUserOrThrow(id));
     }
 
     public UserResponseDto patchUser(UUID id,  UserRequestDto userRequestDto) {
-        Optional<UserEntity> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado;");
-        
-        UserEntity userEntity = userOptional.get();
+   
+        UserEntity userEntity = findUserOrThrow(id);
         
         if (userRequestDto.name() != null && !userRequestDto.name().isBlank()) {
             userEntity.setName(userRequestDto.name());
@@ -61,12 +60,8 @@ public class UserService {
             userEntity.setEmail(userRequestDto.email());
         }
         
-        if (userRequestDto.favoriteMediaType() != userOptional.get().getFavoriteMediaType()) {
+        if (userRequestDto.favoriteMediaType() != userEntity.getFavoriteMediaType()) {
             userEntity.setFavoriteMediaType(userRequestDto.favoriteMediaType());
-        }
-
-        if (userRequestDto.role() != userOptional.get().getRole()) {
-            userEntity.setRole(userRequestDto.role());
         }
     
         if (userRequestDto.password() != null && !userRequestDto.password().isBlank()) {
@@ -83,9 +78,21 @@ public class UserService {
 
 
     public UserResponseDto delete(UUID id) {
+        userRepository.delete(findUserOrThrow(id));
+        return userMapper.toDto(findUserOrThrow(id));
+    }
+
+     // verifica se username já existe
+     private void checkDuplicateUsername(String email) {
+        if(userRepository.findByEmail(email) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Usuário já cadastrado na base de dados.");
+        }
+    }
+
+    // Busca usuário ou retorna 404
+    private UserEntity findUserOrThrow(UUID id) {
         Optional<UserEntity> user = userRepository.findById(id);
-        if(user.isEmpty()) throw  new ResponseStatusException(HttpStatus.NOT_FOUND,"Usuário não encontrado");
-        userRepository.delete(user.get());
-        return userMapper.toDto(user.get());
+        if(user.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Usuário não encontrado");
+        return user.get();
     }
 }

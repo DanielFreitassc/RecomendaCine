@@ -216,7 +216,7 @@ public class MediaService {
         findUserOrThrow(id);
 
         List<FavoriteEntity> favorites = favoriteRepository.findByUser_Id(id);
-        if(favorites.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de filmes favoritos está vaiza");
+        if(favorites.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de filmes favoritos está vazia");
         return favorites;
     }
 

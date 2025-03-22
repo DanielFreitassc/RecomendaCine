@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.danielfreitassc.backend.configurations.OnCreate;
+import com.danielfreitassc.backend.dtos.common.MessageResponseDto;
 import com.danielfreitassc.backend.dtos.user.UserRequestDto;
 import com.danielfreitassc.backend.dtos.user.UserResponseDto;
 import com.danielfreitassc.backend.services.user.UserService;
@@ -33,7 +34,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto create(@RequestBody @Validated(OnCreate.class) UserRequestDto userRequestDto) {
+    public MessageResponseDto create(@RequestBody @Validated(OnCreate.class) UserRequestDto userRequestDto) {
         return  userService.create(userRequestDto);
     }
 
