@@ -39,7 +39,7 @@ public class UserService {
     }
 
     public Page<UserResponseDto> getAllUsers(Pageable pageable, String search) {
-        return userRepository.findAll(pageable,search).map(userMapper::toDto);
+        return userRepository.findAllByRoleNot(UserRole.ADMIN ,pageable,search).map(userMapper::toDto);
     }
 
     public UserResponseDto getUserById(UUID id) {
