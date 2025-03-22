@@ -33,10 +33,10 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(authorize -> authorize
 
                 .requestMatchers(HttpMethod.POST,"/users").permitAll()
-                .requestMatchers(HttpMethod.GET,"/users").permitAll()
-                .requestMatchers(HttpMethod.GET,"/users/{id}").permitAll()
-                .requestMatchers(HttpMethod.PATCH,"/users/{id}").permitAll()
-                .requestMatchers(HttpMethod.DELETE,"/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET,"/users").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.GET,"/users/{id}").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.PATCH,"/users/{id}").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.DELETE,"/users/{id}").hasAnyRole("ADMIN","USER")
                 
                 .requestMatchers(HttpMethod.POST,"/media").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media").hasAnyRole("ADMIN","USER")
