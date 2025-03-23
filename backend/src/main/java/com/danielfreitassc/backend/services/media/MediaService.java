@@ -70,7 +70,7 @@ public class MediaService {
             userEntity.getFavoriteMediaType()
         );
     
-        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia disponível");
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia disponível!");
     
         List<Long> dislikedMediaIds = dislikedRepository.findByUser_Id(id).stream()
             .map(disliked -> disliked.getMedia().getId())
@@ -81,7 +81,7 @@ public class MediaService {
             (lastMediaId != null && media.getId().equals(lastMediaId)) 
         );
     
-        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia disponível para recomendação.");
+        if (allMedia.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma mídia disponível para recomendação!");
     
         Random random = new Random();
         MediaEntity media = null;
@@ -113,18 +113,23 @@ public class MediaService {
     
     
     
-    public FavoriteResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
+    public MessageResponseDto saveFavorite(FavoriteRequestDto favoriteRequestDto) {
+        findMediaOrThrow(favoriteRequestDto.mediaId());
+        findUserOrThrow(favoriteRequestDto.userId());
         boolean exists = favoriteRepository.existsByUser_IdAndMedia_Id(
             favoriteRequestDto.userId(),
             favoriteRequestDto.mediaId()
         );
 
-        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mídia já está nos favoritos");
-        
-        return favoriteMapper.toDto(favoriteRepository.save(favoriteMapper.toEntity(favoriteRequestDto)));
+        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mídia já está nos favoritos!");
+
+        favoriteRepository.save(favoriteMapper.toEntity(favoriteRequestDto));
+        return new MessageResponseDto("Mídia adicionada aos favoritos");
     }
 
     public MessageResponseDto removeFavorite(FavoriteRequestDto favoriteRequestDto) {
+        findMediaOrThrow(favoriteRequestDto.mediaId());
+        findUserOrThrow(favoriteRequestDto.userId());
         Optional<FavoriteEntity> favorite = favoriteRepository.findByUser_IdAndMedia_Id(
             favoriteRequestDto.userId(),
             favoriteRequestDto.mediaId()
@@ -151,11 +156,12 @@ public class MediaService {
     }
 
     // Salva filme em lista de não recomendados
-    public DislikedResponseDto saveDisliked(DislikedRequestDto dislikedRequestDto) {
+    public MessageResponseDto saveDisliked(DislikedRequestDto dislikedRequestDto) {
         // Verifica se já esta na lista de não recomendados
         ensureMediaNotDisliked(dislikedRequestDto);
-        
-        return dislikedMapper.toDto(dislikedRepository.save(dislikedMapper.toEntity(dislikedRequestDto)));
+        dislikedRepository.save(dislikedMapper.toEntity(dislikedRequestDto));
+
+        return new MessageResponseDto("A mídia foi adcionada a lista de não recomendados!");
     }
 
     // Remove mídia da lista de não recomendados
@@ -163,7 +169,7 @@ public class MediaService {
     
         dislikedRepository.delete(verifyDislikedMedia(dislikedRequestDto));
     
-        return new MessageResponseDto("A mídia foi removida da lista de não recomendados.");
+        return new MessageResponseDto("A mídia foi removida da lista de não recomendados!");
     }
 
     // Retorna lista de não recomendados
@@ -182,7 +188,7 @@ public class MediaService {
             dislikedRequestDto.mediaId()
         );
     
-        if (disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia não foi adicionada à lista de exclusão.");
+        if (disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia não foi adicionada à lista de exclusão!");
         return disliked.get();
     }
 
@@ -196,7 +202,7 @@ public class MediaService {
             dislikedRequestDto.mediaId()
         );
 
-        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia já foi adicionada à lista de exclusão.");
+        if (exists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A mídia já foi adicionada à lista de exclusão!");
         return exists;
     }
 
@@ -206,7 +212,7 @@ public class MediaService {
         findUserOrThrow(id);
 
         List<RecommendEntity> recommend = recommendRepository.findByUser_Id(id);
-        if(recommend.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de recomendados está vazia");
+        if(recommend.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de recomendados está vazia!");
         return recommend;
     }
 
@@ -216,7 +222,7 @@ public class MediaService {
         findUserOrThrow(id);
 
         List<FavoriteEntity> favorites = favoriteRepository.findByUser_Id(id);
-        if(favorites.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de filmes favoritos está vazia");
+        if(favorites.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de mídias favoritos está vazia!");
         return favorites;
     }
 
@@ -226,14 +232,20 @@ public class MediaService {
         findUserOrThrow(id);
 
         List<DislikedEntity> disliked = dislikedRepository.findByUser_Id(id);
-        if(disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de filmes não recomendados está vazia");
+        if(disliked.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Lista de mídias não recomendadas está vazia!");
         return disliked;
     }
 
     // Função pra verficar se usuário existe, se existir retorna o mesmo.
     private UserEntity findUserOrThrow(UUID id) {
         Optional<UserEntity> user = userRepository.findById(id);
-        if(user.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado");
+        if(user.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Nenhum usuário encontrado!");
         return user.get();
+    }
+
+    private MediaEntity findMediaOrThrow(Long id) {
+        Optional<MediaEntity> media = mediaRepository.findById(id);
+        if(media.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Mídia não encontrada!");
+        return media.get();
     }
 }

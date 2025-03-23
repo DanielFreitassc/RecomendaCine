@@ -46,7 +46,7 @@ public class UserService {
         return userMapper.toDto(findUserOrThrow(id));
     }
 
-    public UserResponseDto patchUser(UUID id,  UserRequestDto userRequestDto) {
+    public MessageResponseDto patchUser(UUID id,  UserRequestDto userRequestDto) {
    
         UserEntity userEntity = findUserOrThrow(id);
         
@@ -73,7 +73,8 @@ public class UserService {
             userEntity.setFavoriteGenre(userRequestDto.favoriteGenre());
         }
 
-        return userMapper.toDto(userRepository.save(userEntity));
+        userRepository.save(userEntity);
+        return new MessageResponseDto("Usuário atualizado com sucesso!");
     }
 
 

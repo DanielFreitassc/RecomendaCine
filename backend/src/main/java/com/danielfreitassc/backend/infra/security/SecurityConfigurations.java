@@ -39,11 +39,18 @@ public class SecurityConfigurations {
                 .requestMatchers(HttpMethod.DELETE,"/users/{id}").hasAnyRole("ADMIN","USER")
                 
                 .requestMatchers(HttpMethod.POST,"/media").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.POST,"/media/disliked").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.GET,"/media/disliked/{id}").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media").hasAnyRole("ADMIN","USER")
-                .requestMatchers(HttpMethod.GET,"/media/favorite").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.POST,"/media/favorite").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.GET,"/media/favorite/{id}").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.GET,"/media/{id}").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.PUT,"/media/{id}").hasAnyRole("ADMIN","USER")
                 .requestMatchers(HttpMethod.DELETE,"/media/{id}").hasAnyRole("ADMIN","USER")
+
+                .requestMatchers(HttpMethod.GET,"/media/recommendation/{id}").hasAnyRole("ADMIN","USER")
+                .requestMatchers(HttpMethod.GET,"/media/recommend/{id}").hasAnyRole("ADMIN","USER")
+
                 
                 .requestMatchers(HttpMethod.GET, "/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/h2-console/**").permitAll()

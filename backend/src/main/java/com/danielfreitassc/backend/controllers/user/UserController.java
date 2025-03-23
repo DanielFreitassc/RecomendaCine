@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserResponseDto update(@PathVariable UUID id, @RequestBody @Valid UserRequestDto userRequestDto) {
+    public MessageResponseDto update(@PathVariable UUID id, @RequestBody @Valid UserRequestDto userRequestDto) {
         return  userService.patchUser(id, userRequestDto);
     }
 
