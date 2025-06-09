@@ -36,9 +36,8 @@ O **RecomendaCine** é uma plataforma que sugere um filme por dia, baseado nos g
 - **Banco de Dados**: PostgreSQL e H2Database.
 
 ### **Front-End**
-- **Web**: ....
-- **Mobile**: ....
-- **Design**: ....
+- **Mobile**: React Native
+- **Design**: Figma
 
 ---
 
