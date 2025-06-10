@@ -7,8 +7,7 @@ import {
     TouchableOpacity,
     KeyboardAvoidingView,
     ScrollView,
-    Platform,
-    Alert
+    Platform
 } from "react-native";
 import { useState } from "react";
 import colors from "../../../globals/theme/colors";
@@ -19,6 +18,7 @@ import { useAuth } from '../../../hooks/authHook';
 import { AuthStore } from '../../../infra/stores/AuthStore';
 import { Container } from "../../../components/Container";
 import { useNavigation } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 export function Login() {
     const { setToken } = useAuth();
@@ -33,23 +33,40 @@ export function Login() {
     const authStore = new AuthStore();
 
     const handleLogin = async () => {
-        try {
-            setIsLogging(true)
-            if (!email || !password) {
-                Alert.alert('Erro', 'Preencha todos os campos');
-                return;
-            }
+    setIsLogging(true);  
 
-            const response = await api.post('/auth/login', { email, password });
-            await authStore.set(response.data.token);
-            setToken(response.data.token);
-        } catch (error) {
-            Alert.alert('Erro', 'Email ou senha inválidos');
-            console.log(error)
-        } finally {
-            setIsLogging(false)
-        }
+    if (!email || !password) {
+        Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: 'Preencha todos os campos',
+        });
+        setIsLogging(false);
+        return;
     }
+
+    try {
+        const response = await api.post('/auth/login', { email, password });
+        await authStore.set(response.data.token);
+        setToken(response.data.token);
+    } catch (error) {
+        let errorMessage = 'Email ou senha inválidos';
+
+        if (error.response && error.response.data) {
+        errorMessage = error.response.data.message || errorMessage;
+        }
+
+        Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: errorMessage,
+        });
+
+        console.log(error);
+    } finally {
+        setIsLogging(false);  
+    }
+    };
 
     return (
         <Container style={styles.container}>
@@ -126,7 +143,7 @@ export function Login() {
 
                     <TouchableOpacity
                         style={styles.noAccountButton}
-                        onPress={() => navigation.navigate('RegisterStep1')} 
+                        onPress={() => navigation.navigate('RegisterStep1')}
                     >
                         <Text style={styles.noAccountText}>Não tenho uma conta</Text>
                     </TouchableOpacity>
@@ -149,31 +166,31 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         flexGrow: 1,
         justifyContent: 'center',
-    }, 
+    },
     logoContainer: {
         alignItems: 'center',
         marginBottom: 20,
     },
     logo: {
         width: 150,
-        height: 150
+        height: 150,
     },
     appName: {
         fontFamily: "Inter_700Bold",
         fontSize: 24,
         color: colors.primary,
-        marginTop: 10, 
-        marginBottom: 20
+        marginTop: 10,
+        marginBottom: 20,
     },
-    title: {
-        fontSize: 20,
-        fontFamily: "Inter_700Bold",
-        color: colors.primary,
-        textAlign: 'center',
-        marginBottom: 40,
+    inputGroup: {
+        marginBottom: 16,
     },
-    bold: {
-        fontFamily: "Inter_700Bold",
+    label: {
+        fontFamily: "Inter_600SemiBold",
+        fontSize: 14,
+        color: colors.text,
+        marginBottom: 8,
+        marginLeft: 4,
     },
     inputContainer: {
         flexDirection: "row",
@@ -212,14 +229,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: "Cairo_600SemiBold",
         opacity: 0.6,
-    },    inputGroup: {
-        marginBottom: 16,
-    },
-    label: {
-        fontFamily: "Inter_600SemiBold",
-        fontSize: 14,
-        color: colors.text,
-        marginBottom: 8,
-        marginLeft: 4,
     },
 });

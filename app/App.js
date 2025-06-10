@@ -7,6 +7,9 @@ import {
 } from '@expo-google-fonts/inter';
 import { RootNavigationContainer } from './src/navigation';
 import { AuthProvider } from './src/contexts/auth/authContext';
+import Toast from 'react-native-toast-message';
+import { toastConfig } from './src/components/toastConfig';
+import { View } from 'react-native';
 
 export default function App() {
 
@@ -22,8 +25,11 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
-      <RootNavigationContainer />
-    </AuthProvider>
+    <View style={{ flex: 1 }}>
+      <AuthProvider>
+        <RootNavigationContainer />
+        <Toast config={toastConfig}/>
+      </AuthProvider>
+    </View>
   );
 }

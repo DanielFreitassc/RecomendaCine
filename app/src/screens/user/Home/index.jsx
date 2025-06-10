@@ -1,6 +1,3 @@
-// src/pages/Home/index.tsx
-
-import React from 'react';
 import {
   View,
   Text,

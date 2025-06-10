@@ -27,23 +27,23 @@ export default function RegisterStep3() {
 
   const handleSubmit = async () => {
     try {
-      const payload = {
+        const payload = {
         name: route.params.name,
         email: route.params.email,
         password: route.params.password,
         favoriteMediaType: route.params.favoriteMediaType,
         favoriteGenre: selectedGenres,
         image: "foto"
-      };
+        };
 
-      await api.post('/users', payload);
-      alert("Cadastro realizado!");
-      navigation.navigate('Login'); 
+        await api.post('/users', payload);
+        alert("Cadastro realizado!");
+        navigation.navigate('Login');
     } catch (err) {
-      console.error(err);
-      alert("Erro ao cadastrar");
+        console.error(err);
     }
-  };
+    };
+
 
   return (
     <ScrollView>
