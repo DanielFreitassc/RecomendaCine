@@ -18,9 +18,11 @@ import { api } from "../../../infra/apis/api";
 import { useAuth } from '../../../hooks/authHook';
 import { AuthStore } from '../../../infra/stores/AuthStore';
 import { Container } from "../../../components/Container";
+import { useNavigation } from '@react-navigation/native';
 
 export function Login() {
     const { setToken } = useAuth();
+    const navigation = useNavigation();
 
     const [isLogging, setIsLogging] = useState(false);
 
@@ -122,7 +124,10 @@ export function Login() {
                         onPress={handleLogin}
                     />
 
-                    <TouchableOpacity style={styles.noAccountButton}>
+                    <TouchableOpacity
+                        style={styles.noAccountButton}
+                        onPress={() => navigation.navigate('RegisterStep1')} 
+                    >
                         <Text style={styles.noAccountText}>Não tenho uma conta</Text>
                     </TouchableOpacity>
                 </ScrollView>
