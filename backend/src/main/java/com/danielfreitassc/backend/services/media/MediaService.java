@@ -16,6 +16,7 @@ import com.danielfreitassc.backend.dtos.disliked.DislikedRequestDto;
 import com.danielfreitassc.backend.dtos.disliked.DislikedResponseDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
+import com.danielfreitassc.backend.dtos.media.GenresResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
 import com.danielfreitassc.backend.dtos.recommend.RecommendRequestDto;
@@ -59,6 +60,10 @@ public class MediaService {
     public Page<MediaResponseDto> getPage(Pageable pageable) {
         Page<MediaEntity> allMedia = mediaRepository.findAll(pageable);
         return allMedia.map(mediaMapper::toDto);
+    }
+
+    public List<GenresResponseDto> getGenres() {
+        return mediaRepository.findAll().stream().distinct().map(mediaMapper::toGenres).toList();
     }
 
     public MediaResponseDto recommendation(UUID id) {

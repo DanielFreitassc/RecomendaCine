@@ -21,6 +21,7 @@ import com.danielfreitassc.backend.dtos.disliked.DislikedRequestDto;
 import com.danielfreitassc.backend.dtos.disliked.DislikedResponseDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteRequestDto;
 import com.danielfreitassc.backend.dtos.favorite.FavoriteResponseDto;
+import com.danielfreitassc.backend.dtos.media.GenresResponseDto;
 import com.danielfreitassc.backend.dtos.media.MediaRequestDto;
 import com.danielfreitassc.backend.dtos.media.MediaResponseDto;
 import com.danielfreitassc.backend.dtos.recommend.RecommendResponseDto;
@@ -44,6 +45,11 @@ public class MediaController {
     public Page<MediaResponseDto> getMediaPage(Pageable pageable) {
         return mediaService.getPage(pageable); 
     } 
+
+    @GetMapping("/genres")
+    public List<GenresResponseDto> getGenres() {
+        return mediaService.getGenres();
+    }
 
     @GetMapping("/recommendation/{id}")
     public MediaResponseDto recommendation(@PathVariable UUID id) {
